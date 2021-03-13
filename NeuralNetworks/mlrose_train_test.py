@@ -199,6 +199,88 @@ def parameter_tuning_ga_nn(X_train, y_train):
     plt.savefig('ga_nn_parameter_tuning.png')
     plt.show()
 
+def random_optimization_loss_curves(X_train, y_train):
+    plt.figure(figsize=default_figure_size)
+    ga_pop_size = 500
+    ga_mutation_prob = 0.001
+    ga_max_iters = 1000
+    rhc_restarts = 0
+    rhc_max_iters = 350000
+    sa_init_temp = 100
+    sa_exp_const = 1
+    sa_max_iters = 350000
+
+    ga_file_name = 'temp_NN_ga_pop_{}_mutation_prob_{}.pickle'.format(ga_pop_size, ga_mutation_prob)
+
+    if (os.path.isfile(ga_file_name)):
+        print("WARNING: Not Running Loading: ", ga_file_name)
+        with open(ga_file_name, 'rb') as handle:
+            ga_nn_model = pickle.load(handle)
+    else:
+        ga_nn_model = mlrose.NeuralNetwork(hidden_nodes=[80], activation='relu', \
+                                            algorithm='genetic_alg', max_iters=ga_max_iters, \
+                                            bias=True, is_classifier=True, learning_rate=0.0015, \
+                                            early_stopping=False, clip_max=5, max_attempts=200, \
+                                            random_state=42, curve=True, pop_size=ga_pop_size, mutation_prob=ga_mutation_prob)
+        print("Training")
+
+        ga_nn_model.fit(X_train, y_train)
+        with open(ga_file_name, 'wb') as handle:
+            pickle.dump(ga_nn_model, handle,
+                        protocol=pickle.HIGHEST_PROTOCOL)
+    plt.plot(ga_nn_model.fitness_curve, label="Genetic Algorithm")
+
+    schedule = mlrose.ExpDecay(init_temp=sa_init_temp, exp_const=sa_exp_const)
+    sa_file_name = 'temp_NN_sa_init_temp_{}exp_const_{}.pickle'.format(sa_exp_const, sa_init_temp)
+
+    if (os.path.isfile(sa_file_name)):
+        print("WARNING: Not Running Loading: ", sa_file_name)
+        with open(sa_file_name, 'rb') as handle:
+            sa_nn_model = pickle.load(handle)
+    else:
+        sa_nn_model = mlrose.NeuralNetwork(hidden_nodes=[80], activation='relu', \
+                                            algorithm='simulated_annealing', max_iters=sa_max_iters, \
+                                            bias=True, is_classifier=True, learning_rate=0.0015, \
+                                            early_stopping=True, clip_max=5, max_attempts=200, \
+                                            random_state=42, curve=True, schedule=schedule)
+        print("Training")
+
+        sa_nn_model.fit(X_train, y_train)
+        with open(sa_file_name, 'wb') as handle:
+            pickle.dump(sa_nn_model, handle,
+                        protocol=pickle.HIGHEST_PROTOCOL)
+    plt.plot(sa_nn_model.fitness_curve, label="Simulated Annealing")
+
+    rhc_file_name = 'temp_NN_rhc_restarts_{}.pickle'.format(rhc_restarts)
+
+    if (os.path.isfile(rhc_file_name)):
+        print("WARNING: Not Running Loading: ", rhc_file_name)
+        with open(rhc_file_name, 'rb') as handle:
+            rhc_nn_model = pickle.load(handle)
+    else:
+        rhc_nn_model = mlrose.NeuralNetwork(hidden_nodes=[80], activation='relu', \
+                                            algorithm='random_hill_climb', max_iters=rhc_max_iters, \
+                                            bias=True, is_classifier=True, learning_rate=0.0015, \
+                                            early_stopping=True, max_attempts=200, \
+                                            random_state=42, curve=True, restarts=r)
+        print("Training")
+
+        rhc_nn_model.fit(X_train, y_train)
+        with open(rhc_file_name, 'wb') as handle:
+            pickle.dump(rhc_nn_model, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    plt.plot(rhc_nn_model.fitness_curve, label="Random Hill Climbing")
+
+    plt.title("Neural Network Random Optimization Training Comparison", fontsize=title_fontsize, fontweight='bold')
+    plt.xlabel("Iterations", fontsize=fontsize)
+    plt.ylabel("Fitness", fontsize=fontsize)
+    plt.xticks(fontsize=fontsize)
+    plt.yticks(fontsize=fontsize)
+    plt.legend(loc='best', fontsize=legend_fontsize)
+    plt.tight_layout()
+    plt.savefig('ga_nn_parameter_tuning.png')
+    plt.show()
+
+
 
 def cross_validation_best(nn_model, X, y):
     time = []
@@ -233,8 +315,6 @@ def get_training_and_accuracy(lr_nn_model1, X_train, y_train, X_test, y_test, y_
 
 
 if __name__ == "__main__":
-    import NeuralNetworks.common_NN as common_NN
-
     X_train, X_test, y_train, y_test, y_test_non_noisy = get_noisy_nonlinear_with_non_noisy_labels()
     num_features = X_train.shape[1]
 
