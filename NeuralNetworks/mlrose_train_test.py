@@ -35,7 +35,7 @@ def gradient_decent_loss_curve(X_train, y_train):
             lr_nn_model1 = pickle.load(handle)
     else:
         lr_nn_model1 = mlrose.NeuralNetwork(hidden_nodes=[80], activation='relu', \
-                                            algorithm='gradient_descent', max_iters=50000, \
+                                            algorithm='gradient_descent', max_iters=20000, \
                                             bias=True, is_classifier=True, learning_rate=0.0015, \
                                             early_stopping=True, clip_max=5, max_attempts=200, \
                                             random_state=42, curve=True)
@@ -49,8 +49,8 @@ def gradient_decent_loss_curve(X_train, y_train):
     y_train_accuracy = accuracy_score(y_train, y_train_pred)
     print(y_train_accuracy)
 
-    plt.plot(lr_nn_model1.fitness_curve)
-    plt.ylim([-2, 0])
+    plt.plot(abs(lr_nn_model1.fitness_curve))
+    plt.ylim([0, 3])
     plt.title("Gradient Descent Loss Curve", fontsize=title_fontsize, fontweight='bold')
     plt.xlabel("Iterations", fontsize=fontsize)
     plt.ylabel("Fitness", fontsize=fontsize)
@@ -210,8 +210,26 @@ def random_optimization_loss_curves(X_train, y_train):
     sa_exp_const = 1
     sa_max_iters = 350000
 
-    ga_file_name = 'temp_NN_ga_pop_{}_mutation_prob_{}.pickle'.format(ga_pop_size, ga_mutation_prob)
+    gd_file_name = 'temp_NN_GD_LC.pickle'
 
+    if (os.path.isfile(gd_file_name)):
+        print("WARNING: Not Running Loading: ", gd_file_name)
+        with open(gd_file_name, 'rb') as handle:
+            gd_nn_model = pickle.load(handle)
+    else:
+        gd_nn_model = mlrose.NeuralNetwork(hidden_nodes=[80], activation='relu', \
+                                            algorithm='gradient_descent', max_iters=20000, \
+                                            bias=True, is_classifier=True, learning_rate=0.0015, \
+                                            early_stopping=True, clip_max=5, max_attempts=200, \
+                                            random_state=42, curve=True)
+        print("Training")
+        gd_nn_model.fit(X_train, y_train)
+        with open(gd_file_name, 'wb') as handle:
+            pickle.dump(gd_nn_model, handle,
+                        protocol=pickle.HIGHEST_PROTOCOL)
+    plt.plot(abs(gd_nn_model.fitness_curve), label="Gradient Descent")
+
+    ga_file_name = 'temp_NN_ga_pop_{}_mutation_prob_{}.pickle'.format(ga_pop_size, ga_mutation_prob)
     if (os.path.isfile(ga_file_name)):
         print("WARNING: Not Running Loading: ", ga_file_name)
         with open(ga_file_name, 'rb') as handle:
@@ -276,27 +294,11 @@ def random_optimization_loss_curves(X_train, y_train):
     plt.xticks(fontsize=fontsize)
     plt.yticks(fontsize=fontsize)
     plt.legend(loc='best', fontsize=legend_fontsize)
+    plt.ylim([0, 2])
+    plt.xlim([0, 20000])
     plt.tight_layout()
-    plt.savefig('ga_nn_parameter_tuning.png')
+    plt.savefig('All_LC.png')
     plt.show()
-
-
-
-def cross_validation_best(nn_model, X, y):
-    time = []
-    accuracy = []
-    kf = KFold(n_splits=5)
-    for train_index, test_index in kf.split(X):
-        X_train, X_test = X[train_index], X[test_index]
-        y_train, y_test = y[train_index], y[test_index]
-        start_time = time.time()
-        nn_model.fit(X_train, y_train)
-        time.append(time.time() - start_time)
-        y_test_pred = nn_model.predict(X_test)
-        y_train_accuracy = accuracy_score(y_test, y_test_pred)
-        accuracy.append(y_train_accuracy)
-    return time, accuracy
-
 
 def get_training_and_accuracy(lr_nn_model1, X_train, y_train, X_test, y_test, y_test_non_noisy):
     print("Training")
@@ -325,7 +327,7 @@ if __name__ == "__main__":
     parameter_tuning_sa_nn(X_train, y_train)
     parameter_tuning_ga_nn(X_train, y_train)
 
-    gd_max_iters=50000
+    gd_max_iters=20000
     ga_pop_size = 500
     ga_mutation_prob = 0.001
     ga_max_iters = 1000
