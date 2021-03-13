@@ -184,24 +184,25 @@ def plot_vs_problem_size(results, labels, PROBLEM, y, figsize=default_figure_siz
     plt.legend(loc=legend_loc, fontsize=legend_fontsize)
     plt.show()
 
-def plot_for_problem_size_all(results, labels, PROBLEM, problem_size, figsize=(20,8), legend_loc="best", linewidth=2.5, log_x=[True, False]):
+def plot_for_problem_size_all(results, labels, PROBLEM, problem_size, figsize=(20,8), legend_loc="best", linewidth=2.5, log_x=[True, False], x="call_curve"):
     fig, (ax1, ax2) = plt.subplots(ncols=2, sharey=True, figsize=figsize)
     y = "fitness_curve"
     for r, l in zip(results, labels):
         index = r["problem_size"].index(problem_size)
         ax1.plot(r[y][index], label=l, linewidth=linewidth)
-        print(l, " Max Iterations = ", " = ", len(r[y][index]), " Max ", y, " = ", max(r[y][index]))
+        print(l, " Max Iterations = ", len(r[y][index]), " Max Fitness", y, " = ", max(r[y][index]),  " Max ", x," = ", max(r[x][index]))
     ax1.set_xlabel("Iterations")
 
     for r, l in zip(results, labels):
         index = r["problem_size"].index(problem_size)
-        x = "call_curve"
-        x = "time_curve"
         ax2.plot(r[x][index], r[y][index], label=l, linewidth=linewidth)
-        print(l, " max ", x," = ", max(r[x][index]), " max ", y, " = ", max(r[y][index]))
 
-    # ax2.set_xlabel("Fitness Function Calls")
-    ax2.set_xlabel("Time Taken (s)")
+    if x == "call_curve":
+        ax2.set_xlabel("Fitness Function Calls")
+    elif x == "time_curve":
+        ax2.set_xlabel("Time Taken (s)")
+    else:
+        print("X must be call_curve or time_curve")
     title = '{} Problem Comparison of Algorithms\nProblem Size {}'.format(PROBLEM, problem_size)
     ax1.set_ylabel("Fitness")
 
