@@ -15,7 +15,7 @@
 3. Max K Colors Problem
    MaxKColor.ipynb - contains code to create all graphs for the Max K Colors Problem in the report
 
-For this section all graphs were saved form the Jupyter Notebooks
+For this section all graphs were saved from the Jupyter Notebooks
 
 # Part 2: Finiding Weights for Neural Network
 
@@ -27,9 +27,9 @@ Analysis of the Noisy Non-Linear Data Set can be found in data/generated/Generat
 
 All the code for This assaignment is contained in NeuralNetworks/mlrose_train_test.py
 This generates all the plots and saves them as .png files, but takes a very long time to run so it also generates and saves
-files for the results.
+temporary pickled files of the results.
 
-I also forked the mlrose library to implement timing and counting function calls this code is in
+I also forked the mlrose library to implement timing and counting function calls. This code is in
 the mlrose folder and is a submodule to the forked repo
 
 ## Python packages

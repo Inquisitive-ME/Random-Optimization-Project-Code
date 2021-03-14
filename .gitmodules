@@ -1,0 +1,4 @@
+[submodule "mlrose"]
+	path = mlrose
+	url = https://github.com/Inquisitive-ME/mlrose
+	branch = master
