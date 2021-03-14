@@ -29,6 +29,10 @@ All the code for This assaignment is contained in NeuralNetworks/mlrose_train_te
 This generates all the plots and saves them as .png files, but takes a very long time to run so it also generates and saves
 temporary pickled files of the results.
 
+In order for this file to run properly the mlrose directory must be in the system path. This should be taken care of by
+the file but could cause problems. In Pycharm this can also be done by adding the mlrose directory as a sources folder
+in the project structure
+
 I also forked the mlrose library to implement timing and counting function calls. This code is in
 the mlrose folder and is a submodule to the forked repo
 

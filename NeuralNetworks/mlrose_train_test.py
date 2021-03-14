@@ -1,3 +1,9 @@
+import os
+import sys
+
+file_dir = os.getcwd()
+sys.path.append(os.path.dirname(file_dir) + "/mlrose")
+
 import mlrose.mlrose_hiive as mlrose
 import numpy as np
 import pandas as pd
@@ -6,7 +12,6 @@ from data.generated.generated_data import get_noisy_nonlinear_with_non_noisy_lab
 from sklearn.metrics import accuracy_score
 import pickle
 import os
-from sklearn.model_selection import KFold
 import time
 
 GS_FILE_NAME_PREFIX = "Analysis_Data/NOISY_NONLINEAR_NN_DATA"
